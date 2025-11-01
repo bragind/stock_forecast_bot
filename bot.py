@@ -79,8 +79,24 @@ async def process_amount(message: types.Message, state: FSMContext):
     logging.info(f"Загружены данные для {ticker}, сумма: {amount}")
 
     try:
+        # ДИАГНОСТИКА: проверяем данные
+        print(f"🔍 ДАННЫЕ ДЛЯ АНАЛИЗА:")
+        print(f"   Тикер: {ticker}")
+        print(f"   Размер DataFrame: {df.shape}")
+        print(f"   Колонки: {df.columns.tolist()}")
+        print(f"   Последние 3 цены: {df['Close'].tail(3).tolist()}")
+
         best_model_info = select_best_model(df)
         logging.info("Модель выбрана")
+
+        # ДИАГНОСТИКА: что вернула модель
+        print(f"🔍 РЕЗУЛЬТАТ МОДЕЛИ:")
+        print(f"   Ключи в best_model_info: {list(best_model_info.keys())}")
+        print(f"   Модель: {best_model_info.get('model_name')}")
+        print(f"   Прогноз (тип): {type(best_model_info['forecast'])}")
+        print(f"   Прогноз (длина): {len(best_model_info['forecast'])}")
+        print(f"   Прогноз (первые 3 значения): {best_model_info['forecast'][:3]}")
+        print(f"   Метрика: {best_model_info.get('metric_value')}")
 
         forecast = best_model_info["forecast"]
         model_name = best_model_info["model_name"]
@@ -89,6 +105,14 @@ async def process_amount(message: types.Message, state: FSMContext):
 
         img_path = plot_forecast(df, forecast)
         logging.info(f"График сохранён: {img_path}")
+
+        # Проверяем существование файла
+        if os.path.exists(img_path):
+            file_size = os.path.getsize(img_path)
+            print(f"✅ Файл графика создан: {img_path}, размер: {file_size} байт")
+        else:
+            print(f"❌ Файл графика НЕ создан: {img_path}")
+            raise FileNotFoundError(f"График не создан: {img_path}")
 
         recommendations = generate_trading_recommendations(forecast, amount)
         logging.info("Рекомендации сформированы")
@@ -118,6 +142,7 @@ async def process_amount(message: types.Message, state: FSMContext):
     except Exception as e:
         logging.exception("Критическая ошибка при прогнозировании")
         error_msg = str(e)
+        print(f"❌ ОШИБКА: {error_msg}")
         if "Close" in error_msg or "KeyError" in error_msg or "empty" in error_msg.lower():
             await message.answer(
                 "❌ Не удалось обработать тикер. Возможные причины:\n"

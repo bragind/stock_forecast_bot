@@ -17,6 +17,5 @@ def select_best_model(df):
     return {
         "forecast": best["forecast"],
         "model_name": best_name,
-        "metric": "MAPE",
-        "metric_value": best["mape"]
+        "metric_value": best["mape"]  
     }

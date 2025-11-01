@@ -11,9 +11,9 @@
 pip install -r requirements.txt
 python bot.py
 
-## Запуск в контейнере Docker
+Запуск в контейнере Docker
 Скопируйте директорию на сервер
-```bash
+
 cd stock_forecast_bot 
 docker build --no-cache -t stock-bot .
 docker run -d --name stock-bot --env-file .env -v $(pwd)/logs:/app/logs stock-bot

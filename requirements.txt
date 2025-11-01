@@ -1,0 +1,11 @@
+aiogram==3.0.0b7
+yfinance
+pandas
+numpy
+scikit-learn
+prophet
+tensorflow
+matplotlib
+seaborn
+python-dateutil
+python-dotenv
